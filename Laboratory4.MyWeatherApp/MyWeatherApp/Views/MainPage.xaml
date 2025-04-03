@@ -1,0 +1,26 @@
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MyWeatherApp.Views.MainPage">
+
+    <StackLayout Padding="20" Spacing="10">
+        <Entry x:Name="CityEntry" Placeholder="Введите город (например, Москва)" />
+        <Button Text="Получить погоду" Clicked="OnGetWeatherClicked" />
+        <Label x:Name="CurrentWeatherLabel" FontSize="Large" Margin="0,20" />
+        <ListView x:Name="WeatherListView">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                        <StackLayout Padding="10" Spacing="5" Orientation="Horizontal" HeightRequest="75">
+                            <Image Source="{Binding Weather[0].IconUrl}" HeightRequest="50" WidthRequest="50" />
+                            <StackLayout Spacing="5" Orientation="Vertical">
+                                <Label Text="{Binding Date, StringFormat='{0:dd.MM.yyyy HH:mm}'}" FontAttributes="Bold" />
+                                <Label Text="{Binding Main.Temp, StringFormat='Температура: {0}°C'}" />
+                                <Label Text="{Binding Weather[0].Description}" />
+                            </StackLayout>
+                        </StackLayout>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </StackLayout>
+</ContentPage>
