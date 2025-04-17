@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ToDoList.Views.MainPage"
+             xmlns:model="clr-namespace:ToDoList.Models"
+             xmlns:viewmodel="clr-namespace:ToDoList.ViewModels"
+             Title="Список дел">
+    
+    <ScrollView>
+        <VerticalStackLayout Spacing="10" Padding="10">
+            <CollectionView ItemsSource="{Binding Items}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="model:ToDoModel">
+                        <SwipeView>
+                            <SwipeView.RightItems>
+                                <SwipeItems>
+                                    <SwipeItem Text="Удалить" 
+                                               BackgroundColor="Red"
+                                               Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:MainViewModel}}, Path=DeleteItemCommand}"
+                                               CommandParameter="{Binding .}" />
+                                </SwipeItems>
+                            </SwipeView.RightItems>
+                            
+                            <Grid Padding="10">
+                                <Frame>
+                                    <VerticalStackLayout Spacing="5">
+                                        <HorizontalStackLayout Spacing="10">
+                                            <CheckBox IsChecked="{Binding IsComplete}"
+                                                      VerticalOptions="Center"
+                                                      CheckedChanged="OnCheckBoxCheckedChanged"/>
+                                            
+                                            <Label Text="{Binding Title}" 
+                                                   VerticalOptions="Center"
+                                                   FontSize="18">
+                                                <Label.Triggers>
+                                                    <DataTrigger TargetType="Label"
+                                                                 Binding="{Binding IsComplete}"
+                                                                 Value="True">
+                                                        <Setter Property="TextDecorations" Value="Strikethrough" />
+                                                        <Setter Property="Opacity" Value="0.5" />
+                                                    </DataTrigger>
+                                                </Label.Triggers>
+                                            </Label>
+                                        </HorizontalStackLayout>
+                                        
+                                        <Label Text="{Binding Description}" 
+                                               FontSize="14"
+                                               TextColor="Gray">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label"
+                                                             Binding="{Binding IsComplete}"
+                                                             Value="True">
+                                                    <Setter Property="TextDecorations" Value="Strikethrough" />
+                                                    <Setter Property="Opacity" Value="0.5" />
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </VerticalStackLayout>
+                                </Frame>
+                            </Grid>
+                        </SwipeView>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            <VerticalStackLayout Spacing="10">
+                <Entry Text="{Binding Title}" 
+                       Placeholder="Название задачи"
+                       HorizontalOptions="FillAndExpand" />
+                
+                <Entry Text="{Binding Description}" 
+                       Placeholder="Описание задачи"
+                       HorizontalOptions="FillAndExpand" />
+                
+                <Button Text="Добавить задачу" 
+                        Command="{Binding AddItemCommand}"
+                        HorizontalOptions="FillAndExpand" />
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+    
+</ContentPage>
