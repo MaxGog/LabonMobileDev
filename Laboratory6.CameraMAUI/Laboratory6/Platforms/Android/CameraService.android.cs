@@ -19,7 +19,7 @@ namespace Laboratory6.Platforms.Android
         {
             if (!await RequestPermissionsAsync())
             {
-                throw new Exception("Camera or storage permission not granted");
+                throw new Exception("Нет доступа камеры или к памяти.");
             }
 
             try
@@ -42,7 +42,7 @@ namespace Laboratory6.Platforms.Android
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"Error taking photo: {ex.Message}");
+                System.Console.WriteLine($"Ошибка съёмки: {ex.Message}");
                 throw;
             }
         }
@@ -86,12 +86,10 @@ namespace Laboratory6.Platforms.Android
                     var filePath = Path.Combine(folderPath, fileName);
                     await System.IO.File.WriteAllBytesAsync(filePath, imageData);
                     
-                    // Однократное обновление медиа-библиотеки
                     var mediaScanIntent = new Intent(Intent.ActionMediaScannerScanFile);
                     var file = new Java.IO.File(filePath);
                     mediaScanIntent.SetData(global::Android.Net.Uri.FromFile(file));
                     global::Android.App.Application.Context.SendBroadcast(mediaScanIntent);
-                    
                     isSaved = file.Exists();
                 }
 

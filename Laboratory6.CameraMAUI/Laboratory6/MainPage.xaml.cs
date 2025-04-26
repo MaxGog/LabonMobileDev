@@ -17,7 +17,7 @@ public partial class MainPage : ContentPage
 	{
 		try
 		{
-			statusLabel.Text = "Taking photo...";
+			statusLabel.Text = "Съёмка фотографии...";
 			
 			var result = await cameraService.TakePhotoAsync();
 			if (result.Image != null)
@@ -49,13 +49,13 @@ public partial class MainPage : ContentPage
 					
 					if (!string.IsNullOrEmpty(savedPath))
 					{
-						statusLabel.Text = $"Photo saved to: {savedPath}";
-						await DisplayAlert("Success", $"Photo saved to:\n{savedPath}", "OK");
+						statusLabel.Text = $"Фотография сохранена по пути: {savedPath}";
+						await DisplayAlert("Готово!", $"Фотография сохранена по пути:\n{savedPath}", "OK");
 					}
 					else
 					{
-						statusLabel.Text = "File not found after save!";
-						await DisplayAlert("Warning", "Photo metadata saved but file not found", "OK");
+						statusLabel.Text = "Метаданные фотографии сохранены, но файла нет.";
+						await DisplayAlert("ВНИМАНИЕ", "Метаданные фотографии сохранены, но файла нет.", "OK");
 					}
 				}
 			}
@@ -68,8 +68,8 @@ public partial class MainPage : ContentPage
 		}
 		catch (Exception ex)
 		{
-			statusLabel.Text = $"Error: {ex.Message}";
-			await DisplayAlert("Error", ex.Message, "OK");
+			statusLabel.Text = $"Ошибка съёмки: {ex.Message}";
+			await DisplayAlert("Ошибка", ex.Message, "OK");
 		}
 	}
 	

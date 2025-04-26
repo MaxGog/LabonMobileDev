@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MapsApp.MainPage"
+             xmlns:maps="clr-namespace:Microsoft.Maui.Controls.Maps;assembly=Microsoft.Maui.Controls.Maps"
+             Title="Яндекс Карты">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <SearchBar x:Name="searchBar" Grid.Row="0" Placeholder="Поиск места..." SearchButtonPressed="OnSearchButtonPressed"/>
+        <maps:Map x:Name="map" Grid.Row="1" MapType="Street" IsShowingUser="True"/>
+        <StackLayout Grid.Row="2" Orientation="Horizontal">
+            <Button Text="Мое местоположение" Clicked="OnMyLocationClicked"/>
+            <Button Text="Построить маршрут" Clicked="OnBuildRouteClicked"/>
+        </StackLayout>
+    </Grid>
+</ContentPage>
