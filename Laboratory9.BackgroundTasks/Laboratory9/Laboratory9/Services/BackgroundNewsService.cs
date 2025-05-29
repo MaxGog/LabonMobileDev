@@ -3,87 +3,97 @@ namespace Laboratory9.Services;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using Laboratory9.Interfaces;
+using System.Collections.Concurrent;
 
 public class BackgroundNewsService : IDisposable
 {
     private readonly INewsService _newsService;
     private readonly PeriodicTimer _timer;
     private CancellationTokenSource _cts;
-    private int _lastNewsCount = 0;
+    private int _lastNewsCount;
+    private bool _disposed = false;
+
+    public event Action<int>? NewNewsAvailable;
 
     public BackgroundNewsService(INewsService newsService)
     {
         _newsService = newsService;
-        _timer = new PeriodicTimer(TimeSpan.FromMinutes(30));
+        _timer = new PeriodicTimer(TimeSpan.FromSeconds(10)); // Проверка каждые 10 секунд
         _cts = new CancellationTokenSource();
+        _lastNewsCount = 2; // Начальное количество новостей
     }
 
     public async Task StartAsync()
     {
+        if (_disposed) return;
+
         try
         {
-            // Первоначальная загрузка новостей
-            var initialNews = await _newsService.GetLatestNewsAsync();
-            _lastNewsCount = initialNews.Count();
-            
-            // Запускаем фоновую задачу
-            await DoWorkAsync(_cts.Token);
+            _ = Task.Run(async () =>
+            {
+                while (await _timer.WaitForNextTickAsync(_cts.Token))
+                {
+                    await CheckNewsAsync();
+                }
+            }, _cts.Token);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Ошибка при запуске сервиса: {ex.Message}");
+            Console.WriteLine($"Background service error: {ex}");
         }
     }
 
-    private async Task DoWorkAsync(CancellationToken token)
+    private async Task CheckNewsAsync()
     {
         try
         {
-            while (await _timer.WaitForNextTickAsync(token) && !token.IsCancellationRequested)
+            var currentNews = await _newsService.GetLatestNewsAsync();
+            var currentCount = currentNews.Count();
+
+            if (currentCount > _lastNewsCount)
             {
-                var currentNews = await _newsService.GetLatestNewsAsync();
-                var currentCount = currentNews.Count();
+                var newCount = currentCount - _lastNewsCount;
+                _lastNewsCount = currentCount;
                 
-                if (currentCount > _lastNewsCount)
-                {
-                    // Найдены новые новости
-                    _lastNewsCount = currentCount;
-                    await ShowNotification($"Новых новостей: {currentCount - _lastNewsCount}");
-                }
+                // Уведомляем через событие
+                NewNewsAvailable?.Invoke(newCount);
+                
+                // Показываем toast
+                await ShowToastAsync($"Получено {newCount} новых новостей!");
             }
         }
-        catch (OperationCanceledException)
-        {
-            // Сервис был остановлен
-        }
         catch (Exception ex)
         {
-            Console.WriteLine($"Ошибка в фоновой задаче: {ex.Message}");
+            Console.WriteLine($"News check failed: {ex}");
         }
     }
 
-    private async Task ShowNotification(string message)
+    private async Task ShowToastAsync(string message)
     {
-        // Для Android и iOS используем разные подходы
-        if (DeviceInfo.Platform == DevicePlatform.Android)
+        try
         {
-            // Используем Toast для Android
-            await Toast.Make(message, ToastDuration.Long).Show();
+            await MainThread.InvokeOnMainThreadAsync(async () =>
+            {
+                var toast = Toast.Make(message, ToastDuration.Short, 14);
+                await toast.Show(_cts.Token);
+            });
         }
-        else if (DeviceInfo.Platform == DevicePlatform.iOS)
+        catch (Exception ex)
         {
-            // Для iOS можно использовать локальные уведомления
-            // (требуется дополнительная настройка)
+            Console.WriteLine($"Toast failed: {ex}");
         }
     }
 
     public void Stop()
     {
-        _cts.Cancel();
+        _cts?.Cancel();
     }
 
     public void Dispose()
     {
+        if (_disposed) return;
+        _disposed = true;
+        Stop();
         _timer.Dispose();
         _cts.Dispose();
     }

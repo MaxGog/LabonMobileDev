@@ -9,13 +9,19 @@ public partial class MainPage : ContentPage
     public MainPage(NewsViewModel viewModel)
     {
         InitializeComponent();
-        _viewModel = viewModel;
-        BindingContext = _viewModel;
+        BindingContext = _viewModel = viewModel;
     }
     
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        await _viewModel.LoadNewsAsync();
+    }
+    
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+        _viewModel.Cleanup();
     }
 }
 

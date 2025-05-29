@@ -7,8 +7,7 @@ using Laboratory9.Services;
 
 namespace Laboratory9.ViewModels;
 
-[ObservableObject]
-public partial class NewsViewModel
+public partial class NewsViewModel : ObservableObject
 {
     private readonly INewsService _newsService;
     private readonly BackgroundNewsService _backgroundService;
@@ -18,16 +17,35 @@ public partial class NewsViewModel
     
     [ObservableProperty]
     private bool _isRefreshing;
+    
+    [ObservableProperty]
+    private int _newNewsCount;
 
     public NewsViewModel(INewsService newsService, BackgroundNewsService backgroundService)
     {
         _newsService = newsService;
         _backgroundService = backgroundService;
+        
+        // Подписываемся на события
+        _backgroundService.NewNewsAvailable += OnNewNewsAvailable;
+        
+        // Запускаем фоновую службу
+        _ = _backgroundService.StartAsync();
+        
+        // Загружаем начальные данные
         LoadNewsCommand = new AsyncRelayCommand(LoadNewsAsync);
+        _ = LoadNewsAsync();
     }
-    
-    public IAsyncRelayCommand LoadNewsCommand { get; }
-    
+
+    private void OnNewNewsAvailable(int newCount)
+    {
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            NewNewsCount += newCount;
+        });
+    }
+
+    [RelayCommand]
     private async Task LoadNewsAsync()
     {
         IsRefreshing = true;
@@ -35,19 +53,21 @@ public partial class NewsViewModel
         {
             var news = await _newsService.GetLatestNewsAsync();
             NewsItems.Clear();
-            foreach (var item in news)
+            foreach (var item in news.OrderByDescending(n => n.PublishedDate))
             {
                 NewsItems.Add(item);
             }
+            NewNewsCount = 0; // Сбрасываем счетчик после обновления
         }
         finally
         {
             IsRefreshing = false;
         }
     }
-    
-    public void StopBackgroundService()
+
+    public void Cleanup()
     {
+        _backgroundService.NewNewsAvailable -= OnNewNewsAvailable;
         _backgroundService.Stop();
     }
 }

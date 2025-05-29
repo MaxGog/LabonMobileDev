@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Laboratory10.MainPage"
+             xmlns:vm="clr-namespace:Laboratory10.ViewModels"
+             xmlns:converters="clr-namespace:Laboratory10.Convectors">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
+            <converters:StringIsNotNullOrEmptyConverter x:Key="StringIsNotNullOrEmptyConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    
+    <RefreshView IsRefreshing="{Binding IsRefreshing}"
+                 Command="{Binding RefreshCommand}"
+                 BackgroundColor="{AppThemeBinding Light=White, Dark=Black}">
+        <Grid>
+            <!-- Состояние загрузки -->
+            <ActivityIndicator IsRunning="{Binding ShowLoading}"
+                               IsVisible="{Binding ShowLoading}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               Color="{AppThemeBinding Light=Blue, Dark=White}" />
+            
+            <!-- Состояние ошибки -->
+            <VerticalStackLayout IsVisible="{Binding ShowError}"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"
+                                Spacing="10">
+                <Label Text="{Binding ErrorMessage}"
+                       TextColor="Red"
+                       FontSize="16"
+                       HorizontalOptions="Center" />
+                
+                <Button Text="Retry"
+                        Command="{Binding LoadItemsCommand}"
+                        HorizontalOptions="Center"
+                        WidthRequest="100" />
+            </VerticalStackLayout>
+            
+            <!-- Состояние успеха -->
+            <CollectionView ItemsSource="{Binding Items}"
+                           IsVisible="{Binding ShowError, Converter={StaticResource InverseBoolConverter}}">
+                <CollectionView.Header>
+                    <SearchBar Placeholder="Search items..."
+                               Text="{Binding SearchQuery}"
+                               Margin="10" />
+                </CollectionView.Header>
+                
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame Padding="15"
+                               Margin="5"
+                               CornerRadius="10"
+                               BackgroundColor="{AppThemeBinding Light=#F0F0F0, Dark=#202020}">
+                            <VerticalStackLayout>
+                                <Label Text="{Binding Name}"
+                                       FontSize="16"
+                                       FontAttributes="Bold" />
+                                <Label Text="{Binding Description}"
+                                       FontSize="14" />
+                            </VerticalStackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
+    </RefreshView>
+</ContentPage>
