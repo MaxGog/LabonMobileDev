@@ -43,20 +43,5 @@ public class NewsService : INewsService
     {
         var currentNewsCount = _cachedNews.Count;
         await GetLatestNewsAsync();
-
-        if (_cachedNews.Count > currentNewsCount)
-        {
-            // Есть новые новости - можно отправить уведомление
-            SendNotification("Есть новые новости!");
-        }
-    }
-
-    private void SendNotification(string message)
-    {
-        // Реализация уведомлений зависит от платформы
-        // В реальном приложении используйте Plugin.LocalNotification или аналоги
-#if ANDROID
-        // Android-специфичный код уведомлений
-#endif
     }
 }

@@ -19,9 +19,10 @@ public static class MauiProgram
         builder.Services.AddSingleton<INewsService, NewsService>();
         builder.Services.AddSingleton<BackgroundNewsService>();
         builder.Services.AddSingleton<NewsViewModel>();
-#if DEBUG
-        builder.Logging.AddDebug();
-#endif
+        builder.Services.AddTransient<HttpClient>();
+//#if DEBUG
+        //builder.Logging.AddDebug();
+        //#endif
         return builder.Build();
     }
 }
