@@ -23,7 +23,6 @@
             </CollectionView>
         </RefreshView>
 
-        <!-- Индикатор новых новостей -->
         <Label Text="{Binding NewNewsCount, StringFormat='Новых новостей: {0}'}"
             IsVisible="{Binding NewNewsCount, Converter={StaticResource GreaterThanZeroConverter}}"
             HorizontalOptions="Center"

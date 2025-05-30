@@ -18,9 +18,9 @@ public class BackgroundNewsService : IDisposable
     public BackgroundNewsService(INewsService newsService)
     {
         _newsService = newsService;
-        _timer = new PeriodicTimer(TimeSpan.FromSeconds(10)); // Проверка каждые 10 секунд
+        _timer = new PeriodicTimer(TimeSpan.FromSeconds(10));
         _cts = new CancellationTokenSource();
-        _lastNewsCount = 2; // Начальное количество новостей
+        _lastNewsCount = 2;
     }
 
     public async Task StartAsync()
@@ -55,10 +55,8 @@ public class BackgroundNewsService : IDisposable
                 var newCount = currentCount - _lastNewsCount;
                 _lastNewsCount = currentCount;
                 
-                // Уведомляем через событие
                 NewNewsAvailable?.Invoke(newCount);
                 
-                // Показываем toast
                 await ShowToastAsync($"Получено {newCount} новых новостей!");
             }
         }

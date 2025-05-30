@@ -26,13 +26,8 @@ public partial class NewsViewModel : ObservableObject
         _newsService = newsService;
         _backgroundService = backgroundService;
         
-        // Подписываемся на события
         _backgroundService.NewNewsAvailable += OnNewNewsAvailable;
-        
-        // Запускаем фоновую службу
         _ = _backgroundService.StartAsync();
-        
-        // Загружаем начальные данные
         LoadNewsCommand = new AsyncRelayCommand(LoadNewsAsync);
         _ = LoadNewsAsync();
     }
@@ -46,7 +41,7 @@ public partial class NewsViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task LoadNewsAsync()
+    public async Task LoadNewsAsync()
     {
         IsRefreshing = true;
         try
@@ -57,7 +52,7 @@ public partial class NewsViewModel : ObservableObject
             {
                 NewsItems.Add(item);
             }
-            NewNewsCount = 0; // Сбрасываем счетчик после обновления
+            NewNewsCount = 0;
         }
         finally
         {
